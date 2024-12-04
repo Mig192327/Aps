@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciar Professores</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Cadastrar Professor</h1>
+  </header>
+  <form id="formProfessor">
+    <label for="nome">Nome:</label>
+    <input type="text" id="nome" name="nome" required><br>
+
+    <label for="disciplina">Disciplina:</label>
+    <input type="text" id="disciplina" name="disciplina" required><br>
+
+    <button type="submit">Cadastrar Professor</button>
+  </form>
+
+  <h2>Professores Cadastrados</h2>
+  <ul id="listaProfessores"></ul>
+
+  <script>
+    $(document).ready(function() {
+      // Função para listar professores
+      function listarProfessores() {
+        $.get('http://localhost:3031/professores', function(data) {
+          $('#listaProfessores').empty();
+          data.forEach(professor => {
+            $('#listaProfessores').append(`<li>${professor.id_professor} - ${professor.nome} - ${professor.disciplina}</li>`);
+          });
+        });
+      }
+
+      // Chama a função para listar os professores quando a página carrega
+      listarProfessores();
+
+      // Enviar o formulário de cadastro
+      $('#formProfessor').submit(function(e) {
+        e.preventDefault();
+        const nome = $('#nome').val();
+        const disciplina = $('#disciplina').val();
+
+        $.ajax({
+          url: 'http://localhost:3031/professores',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ nome, disciplina }),
+          success: function() {
+            alert('Professor cadastrado com sucesso!');
+            listarProfessores();
+            $('#formProfessor')[0].reset();
+          },
+          error: function() {
+            alert('Erro ao cadastrar professor.');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
