@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turmas e Alunos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 20px;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .turma-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .turma-card {
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 200px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .turma-card:hover {
+      background-color: #eef;
+    }
+    .aluno-list {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .aluno-item {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Turmas e Alunos</h1>
+  <div class="turma-list" id="turma-list"></div>
+  <div class="aluno-list" id="aluno-list">
+    <h2>Alunos da Turma</h2>
+    <ul id="aluno-items"></ul>
+  </div>
+
+  <script>
+    const turmaListEl = document.getElementById("turma-list");
+    const alunoListEl = document.getElementById("aluno-items");
+
+    // Fetch turmas do backend
+    async function fetchTurmas() {
+      try {
+        const response = await fetch("http://localhost:3031/turmas");
+        const turmas = await response.json();
+        renderTurmas(turmas);
+      } catch (error) {
+        console.error("Erro ao carregar turmas:", error);
+      }
+    }
+
+    // Renderiza as turmas na página
+    function renderTurmas(turmas) {
+      turmaListEl.innerHTML = "";
+      turmas.forEach((turma) => {
+        const turmaCard = document.createElement("div");
+        turmaCard.className = "turma-card";
+        turmaCard.textContent = turma.nome_turma;
+        turmaCard.onclick = () => fetchAlunos(turma.id_turma);
+        turmaListEl.appendChild(turmaCard);
+      });
+    }
+
+// Fetch alunos de uma turma
+async function fetchAlunos(idTurma) {
+  try {
+    const response = await fetch(`http://localhost:3031/turmas/${idTurma}/alunos`);
+    const alunos = await response.json();
+    console.log("Alunos recebidos:", alunos); // Verifica o retorno da API
+    renderAlunos(alunos);
+  } catch (error) {
+    console.error("Erro ao carregar alunos da turma:", error);
+  }
+}
+
+
+    // Renderiza os alunos na página
+    function renderAlunos(alunos) {
+      alunoListEl.innerHTML = "";
+      if (alunos.length === 0) {
+        alunoListEl.innerHTML = "<p>Nenhum aluno matriculado nesta turma.</p>";
+        return;
+      }
+      alunos.forEach((aluno) => {
+        const alunoItem = document.createElement("li");
+        alunoItem.className = "aluno-item";
+        alunoItem.textContent = aluno.nome;
+        alunoListEl.appendChild(alunoItem);
+      });
+    }
+
+    // Carrega as turmas ao abrir a página
+    fetchTurmas();
+  </script>
+</body>
+</html>
